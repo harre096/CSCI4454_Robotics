@@ -83,8 +83,8 @@ void initButton(void){
 	everytime thatP1.1 is grounded. So without further setup, pressing the button will
 	leave BIT as 0 or low, forever after (ie. auto blink mode).
 	Pull-up fix in next two lines.*/
-	P1REN|=BIT1;  //enaling internal pull-up resistor
-	P1OUT|=BIT1;  //since 0=buttonDown, default circuit as buttonUp aka 1
+	P1REN|=BIT1;  //enaling internal pull-up/pull-down resistor
+	P1OUT|=BIT1;  //since 0=buttonDown, default circuit as buttonUp aka 1 aka pull-up
 
 	if (P1SEL0 & BIT1){ //If bit zero is 1 SEL0
 		if(P1SEL1 & BIT1){
