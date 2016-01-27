@@ -31,9 +31,6 @@ void initLED(void){
 	setSelectToZeroP2(BIT0);
 	setSelectToZeroP2(BIT1);
 	setSelectToZeroP2(BIT2);
-
-	//P2OUT|=BIT1;  	//Turn LED on
-	//P2OUT|=BIT2;  	//Turn LED on
 }
 
 
@@ -54,11 +51,8 @@ void newColor (unsigned int colorState){
 
 void main(void){
 	WDTCTL = WDTPW | WDTHOLD; //Stop watchdog timer
-
-	//Initialize the I/O port
 	initLED();
 	initButtons();
-	P2OUT=5;
 
 
 	//Enter loop
