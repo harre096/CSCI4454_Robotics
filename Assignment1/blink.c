@@ -57,7 +57,7 @@ void main(void)
 
 /*Adding Button*/
 
-void initLED(void){
+/*void initLED(void){
 	P1DIR|=BIT0;  //1 aka "out" for led on line 0
 
 	//Set Port1 Line0's Selectors to both be zero
@@ -78,11 +78,11 @@ void initLED(void){
 void initButton(void){
 	P1DIR&=~BIT1; //0 aka "in" for button on line 1
 
-	/*Initially, with above code P1IN BIT1 is 1 or high. However, after the button is
+	Initially, with above code P1IN BIT1 is 1 or high. However, after the button is
 	pressed, that line (P1.1) is grounded and set to low/0. The loop changes LED
 	everytime thatP1.1 is grounded. So without further setup, pressing the button will
 	leave BIT as 0 or low, forever after (ie. auto blink mode).
-	Pull-up fix in next two lines.*/
+	Pull-up fix in next two lines.
 	P1REN|=BIT1;  //enaling internal pull-up/pull-down resistor
 	P1OUT|=BIT1;  //since 0=buttonDown, default circuit as buttonUp aka 1 aka pull-up
 
@@ -113,4 +113,4 @@ void main(void){
 		volatile int k=0; //Using volatile to trick complier into letting empty loop run
 		for (k = 0; k < 20000; ++k);
 	}
-}
+}*/
