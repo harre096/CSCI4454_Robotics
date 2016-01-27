@@ -44,9 +44,14 @@ void initButtons(void){
 	setSelectToZeroP1(BIT4);
 }
 
-void newColor (unsigned int colorState){
+void newColor (unsigned int *colorState){
+	if(++(*colorState)==8)
+		*colorState=0;
+}
 
-
+void setColor (unsigned int colorState){
+	P2OUT&=0xF8;       //and with F8 to zero out bits 0,1,2
+	P2OUT|=colorState; //or with the color to set 0,1,2 as appropriate
 }
 
 void main(void){
@@ -66,13 +71,11 @@ void main(void){
 		}
 
 		if(autoModeState){
-			P2OUT&=0xF8;       //and with F8 to zero out bits 0,1,2
-			P2OUT|=colorState; //or with the color to set 0,1,2 as appropriate
-			colorState==8?colorState=0:colorState++; //increment or reset color
+			setColor(colorState);
+			newColor(&colorState);
 		} else if (!(portIn & BIT4)){ //if portIn BIT4 is 0, change color manually
-			P2OUT&=0xF8;       //and with F8 to zero out bits 0,1,2
-			P2OUT|=colorState; //or with the color to set 0,1,2 as appropriate
-			colorState==8?colorState=0:colorState++; //increment or reset color
+			setColor(colorState);
+			newColor(&colorState);
 		}
 
 		volatile int k=0; //Using volatile to trick complier into letting empty loop run
