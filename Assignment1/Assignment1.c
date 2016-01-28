@@ -1,7 +1,10 @@
 
 #include "msp432.h"
 
-void InterruptHandler(void) ;
+void PortOneInterrupt(void) {
+	unsigned short iflag=P1IV; //IV=interrupt vector
+	P1OUT^=BIT0;
+}
 
 void selectDIO_P1(char bitToSet){
 	//Set Port1, Line[bitToSet]'s selectors to both be zero (Digital I/O mode)
@@ -15,25 +18,10 @@ void selectDIO_P1(char bitToSet){
 		P1SEL1&=~bitToSet;
 	}
 }
-void selectDIO_P2(char bitToSet){
-	//Set Port2, Line[bitToSet]'s selectors to both be zero (Digital I/O mode)
-	if (P2SEL0 & bitToSet){
-		if(P2SEL1 & bitToSet){
-			P2SELC|=bitToSet;  //Both 1 => both to 0 using complement. 10.2.6 in user guide
-		}else{
-			P2SEL0&=~bitToSet;
-		}
-	} else if (P2SEL1 & bitToSet){
-		P2SEL1&=~bitToSet;
-	}
-}
-
 
 void initLED(void){
-	P2DIR|=BIT0|BIT1|BIT2;  //1 aka "out" for LED2 on lines 0,1,2
-	selectDIO_P2(BIT0);
-	selectDIO_P2(BIT1);
-	selectDIO_P2(BIT2);
+	P1DIR|=BIT0;  //1 aka "out" for LED1 on lines 0
+	selectDIO_P1(BIT0);
 }
 
 
@@ -47,42 +35,18 @@ void initButtons(void){
 	selectDIO_P1(BIT4);
 }
 
-void newColor (unsigned int *colorState){
-	if(++(*colorState)==8)
-		*colorState=0;
-}
-
-void setColor (unsigned int colorState){
-	P2OUT&=0xF8;       //and with F8 to zero out bits 0,1,2
-	P2OUT|=colorState; //or with the color to set 0,1,2 as appropriate
-}
-
 void main(void){
+
 	WDTCTL = WDTPW | WDTHOLD; //Stop watchdog timer
+	/*Initialize the I/O ports*/
 	initLED();
 	initButtons();
+	//init Interrupts
+	P1IE=(BIT1|BIT4);   //interrupt enable P1 lines 1,4 only
+	P1IES=(BIT1|BIT4);  //interupt on a high-to-low transition (buttons are set pull-up)
+	NVIC_EnableIRQ(PORT1_IRQn); //Enable P1 interrupts using the NVIC
+								//NVIC=nested vector interrupt controller
 
-
-	//Enter loop
-	unsigned int autoState = 1;
-	unsigned int colorState = 0;
-
-	while(1){
-		unsigned char portIn = P1IN;
-		if(!(portIn & BIT1)){ //if portIn BIT1 is 0, toggle automatic color changing
-			autoState^=1;
-		}
-
-		if(autoState){
-			setColor(colorState);
-			newColor(&colorState);
-		} else if (!(portIn & BIT4)){ //if portIn BIT4 is 0, change color manually
-			setColor(colorState);
-			newColor(&colorState);
-		}
-
-		volatile int k=0; //Using volatile to trick complier into letting empty loop run
-		for (k = 0; k < 20000; ++k);
-	}
+	while(1){}
 }
 
