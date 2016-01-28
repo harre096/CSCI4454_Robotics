@@ -1,4 +1,7 @@
+
 #include "msp432.h"
+
+void InterruptHandler(void) ;
 
 void selectDIO_P1(char bitToSet){
 	//Set Port1, Line[bitToSet]'s selectors to both be zero (Digital I/O mode)
@@ -82,3 +85,4 @@ void main(void){
 		for (k = 0; k < 20000; ++k);
 	}
 }
+
