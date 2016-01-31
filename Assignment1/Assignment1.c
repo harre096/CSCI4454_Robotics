@@ -1,8 +1,8 @@
 
 #include "msp432.h"
 
-unsigned int colorState;
-unsigned int blackOut;
+//unsigned int colorState;
+//unsigned int blackOut;
 
 void selectPortFunction(int port, int line, int sel10, int sel1){
 	//(p,l,0,0) will set port to Digital I/O
@@ -39,33 +39,56 @@ void initLED(void){
 }
 
 void setClockFrequency(void){
-	CSKEY=0x695A;
-	CSCTL1=0x00000223;
+	CSKEY=0x695A;       //unlock
+	CSCTL1=0x00000223;  //run at 128, enable stuff for clock
 	CSCLKEN=0x0000800F;
-	CSKEY=0xA596;
+	CSKEY=0xA596;       //lock
 }
 
 void configureTimer(void){
-	TA0CTL=0x0100;
-	TA0CCTL0=0x2000;
-	TA0CCR0=64000;   //0xFA00; //or TA0CCRO=64000
-	TA0CTL=0x0136;   //Our old default was 0x0116, but I am dividing
+	TA0CTL=0x0100;   //Picks clock (above), count up mode, sets internal divider, shuts timer off.
+
+
+	TA0CCTL0=0x2000; //Pick compare (not capture) register, interrupt off
+	TA0CCR0=0x0080;  //(128)//sets the max time compare register (1,2,3 depend on this peak)
+					 //interrups every milisecond
+
+	TA0CCTL1=0x2010; //Pick compare (not capture) register, interrupt on
+	TA0CCR1=0x0080;   //sets the max time compare  for this capture, will wait until overflow
+
+
+	TA0CTL=0x0116;   //Sets counter to 0, turns counter on, enables timeout (aka overflow) interrups
 }
-void newColor(){
-	P2OUT&=0xF8;       //and with F8 to zero out bits 0,1,2
-	if(!blackOut){
-		if(++(colorState)==8)
-			colorState=0;
-		P2OUT|=colorState; //or with the color to set 0,1,2 as appropriate
-	}
-	blackOut^=1;
-}
+//void newColor(){
+//	P2OUT&=0xF8;       //and with F8 to zero out bits 0,1,2
+//	if(!blackOut){
+//		if(++(colorState)==8)
+//			colorState=0;
+//		P2OUT|=colorState; //or with the color to set 0,1,2 as appropriate
+//	}
+//	blackOut^=1;
+//}
 
 void TimerA0Interrupt(void) {
+	static int intCycles=0;
+	static unsigned short intensity=0x80;
+
 	unsigned short intv=TA0IV; //IV=interrupt vector
-	if(intv==0x0E){
-		newColor();
+	if(intv==0x0E){// OE is overflow interrupt
+		if(++intCycles == 10){
+			intCycles=0;
+			if(intensity==0){
+				intensity=128;
+			}else{
+				intensity-=1;
+			}
+			TA0CCR1=intensity;
+		}
+	P2OUT&=~BIT0;
+	}else if(intv==0x02){
+		P2OUT|=BIT0;
 	}
+
 }
 
 void main(void){
