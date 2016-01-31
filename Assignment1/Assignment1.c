@@ -1,6 +1,8 @@
 
 #include "msp432.h"
 
+unsigned int colorState;
+unsigned int blackOut;
 
 void selectPortFunction(int port, int line, int sel10, int sel1){
 	//(p,l,0,0) will set port to Digital I/O
@@ -30,9 +32,10 @@ void selectPortFunction(int port, int line, int sel10, int sel1){
 }
 
 void initLED(void){
-	P1DIR|=BIT0;  //1 aka "out" for LED1 on lines 0
-	selectPortFunction(1,0,0,0);
-	P1OUT|=BIT0;
+	P2DIR|=BIT0|BIT1|BIT2;  //1 aka "out" for LED2 on lines 0,1,2
+	selectPortFunction(2,0,0,0);
+	selectPortFunction(2,1,0,0);
+	selectPortFunction(2,2,0,0);
 }
 
 void setClockFrequency(void){
@@ -45,14 +48,31 @@ void setClockFrequency(void){
 void configureTimer(void){
 	TA0CTL=0x0100;
 	TA0CCTL0=0x2000;
-	TA0CCR0=0xFA00; //or TA0CCRO=64000
-	TA0CTL=0x0116;
+	TA0CCR0=64000;//0xFA00; //or TA0CCRO=64000
+	TA0CTL=0x0136;
+}
+void newColor (unsigned int *colorState){
+	if(blackOut){
+		P2OUT&=0xF8;       //and with F8 to zero out bits 0,1,2
+		blackOut=0;        //set blackout to false
+	}else{
+		if(++(*colorState)==8)
+			*colorState=0;
+		blackOut=1;        //set blackout to true
+	}
+}
+
+void setColor (unsigned int colorState){
+	P2OUT&=0xF8;       //and with F8 to zero out bits 0,1,2
+	P2OUT|=colorState; //or with the color to set 0,1,2 as appropriate
 }
 
 void TimerA0Interrupt(void) {
 	unsigned short intv=TA0IV; //IV=interrupt vector
-	if(intv==0x0E)
-		P1OUT^=BIT0;
+	if(intv==0x0E){
+		setColor(colorState);
+		newColor(&colorState);
+	}
 }
 
 void main(void){
