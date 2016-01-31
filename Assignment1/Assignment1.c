@@ -51,27 +51,20 @@ void configureTimer(void){
 	TA0CCR0=64000;   //0xFA00; //or TA0CCRO=64000
 	TA0CTL=0x0136;   //Our old default was 0x0116, but I am dividing
 }
-void newColor (unsigned int *colorState){
-	if(blackOut){
-		P2OUT&=0xF8;       //and with F8 to zero out bits 0,1,2
-		blackOut=0;        //set blackout to false
-	}else{
-		if(++(*colorState)==8)
-			*colorState=0;
-		blackOut=1;        //set blackout to true
-	}
-}
-
-void setColor (unsigned int colorState){
+void newColor(){
 	P2OUT&=0xF8;       //and with F8 to zero out bits 0,1,2
-	P2OUT|=colorState; //or with the color to set 0,1,2 as appropriate
+	if(!blackOut){
+		if(++(colorState)==8)
+			colorState=0;
+		P2OUT|=colorState; //or with the color to set 0,1,2 as appropriate
+	}
+	blackOut^=1;
 }
 
 void TimerA0Interrupt(void) {
 	unsigned short intv=TA0IV; //IV=interrupt vector
 	if(intv==0x0E){
-		setColor(colorState);
-		newColor(&colorState);
+		newColor();
 	}
 }
 
