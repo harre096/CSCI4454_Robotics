@@ -49,12 +49,12 @@ void initButtons(void){
 	selectPortFunction(1,4,0,0);
 }
 
-void newColor (unsigned int *colorState){
-	if(++(*colorState)==8)
-		*colorState=0;
+void newColor (){
+	if(++(colorState)==8)
+		colorState=0;
 }
 
-void setColor (unsigned int colorState){
+void setColor (){
 	P2OUT&=0xF8;       //and with F8 to zero out bits 0,1,2
 	P2OUT|=colorState; //or with the color to set 0,1,2 as appropriate
 }
@@ -63,9 +63,9 @@ void PortOneInterrupt(void) {
 	unsigned short iflag=P1IV; //IV=interrupt vector
 	if(iflag==0x04)//if line 1 was hit (datasheet 10.4.1)
 		autoState^=1;
-	if(iflag==0x0A){//if line 4 was hit (datasheet 10.4.1)
-		setColor(colorState);
-		newColor(&colorState);
+	if(iflag==0x0A && !autoState){//if line 4 was hit (datasheet 10.4.1)
+		setColor();
+		newColor();
 	}
 
 }
@@ -88,8 +88,8 @@ void main(void){
 
 		while(1){
 			if(autoState){
-				setColor(colorState);
-				newColor(&colorState);
+				setColor();
+				newColor();
 			}
 			volatile int k=0; //Using volatile to trick complier into letting empty loop run
 			for (k = 0; k < 20000; ++k);
