@@ -48,8 +48,8 @@ void setClockFrequency(void){
 void configureTimer(void){
 	TA0CTL=0x0100;
 	TA0CCTL0=0x2000;
-	TA0CCR0=64000;//0xFA00; //or TA0CCRO=64000
-	TA0CTL=0x0136;
+	TA0CCR0=64000;   //0xFA00; //or TA0CCRO=64000
+	TA0CTL=0x0136;   //Our old default was 0x0116, but I am dividing
 }
 void newColor (unsigned int *colorState){
 	if(blackOut){
