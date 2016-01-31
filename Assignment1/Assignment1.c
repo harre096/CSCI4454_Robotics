@@ -20,8 +20,10 @@ void selectDIO_P1(char bitToSet){
 }
 
 void initLED(void){
-	P1DIR|=BIT0;  //1 aka "out" for LED1 on lines 0
-	selectDIO_P1(BIT0);
+	P2DIR|=BIT0|BIT1|BIT2;  //1 aka "out" for LED2 on lines 0,1,2
+	selectDIO_P2(BIT0);
+	selectDIO_P2(BIT1);
+	selectDIO_P2(BIT2);
 }
 
 
@@ -33,6 +35,16 @@ void initButtons(void){
 
 	selectDIO_P1(BIT1);
 	selectDIO_P1(BIT4);
+}
+
+void newColor (unsigned int *colorState){
+	if(++(*colorState)==8)
+		*colorState=0;
+}
+
+void setColor (unsigned int colorState){
+	P2OUT&=0xF8;       //and with F8 to zero out bits 0,1,2
+	P2OUT|=colorState; //or with the color to set 0,1,2 as appropriate
 }
 
 void main(void){
