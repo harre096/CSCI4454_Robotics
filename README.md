@@ -1,5 +1,12 @@
 # CSCI4454_Robotics
 
-###Submission for part a of assignment: 8 colors
-Colors change automatically. One button swithes from manual to automatic, while the other changes color if in manual mode
-https://github.com/harre096/CSCI4454_Robotics/commit/2b0c592ba53e31f76fa6b4a71f3b7ce9328ddf67
+###Assignment 1
+#####Master: 8 sequential colors
+Colors change automatically. One button switches from manual to automatic, while the other changes color if in manual mode
+#####B: Simple interrupt
+Partb: Using interrupt to toggle modes. Both S1 and S2 button work.
+#####C: Flip each second
+Color/blank pattern changes on every second.
+#####D: 9 Fancy colors
+Used timer to dim LED and make new colors. Also, the fading red LED excercise can be found in the commits.
+
