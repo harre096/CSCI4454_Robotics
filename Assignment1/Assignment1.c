@@ -78,7 +78,7 @@ void TimerA0Interrupt(void) {
 
 		if(++(cycles)==1000){
 			cycles=0;
-			if(++(colorState)==3)
+			if(++(colorState)==9)
 				colorState=0;
 		}
 
@@ -112,25 +112,25 @@ void main(void){
 	myColors[2].green=0x80;
 	myColors[2].blue=0x37;
 
-	myColors[0].red=0x80;
-	myColors[0].green=0x00;
-	myColors[0].blue=0x4F;
-	myColors[1].red=0x2F;
-	myColors[1].green=0x0F;
-	myColors[1].blue=0x00;
-	myColors[2].red=0x16;
-	myColors[2].green=0x80;
-	myColors[2].blue=0x37;
+	myColors[3].red=0x26;
+	myColors[3].green=0x4E;
+	myColors[3].blue=0x42;
+	myColors[4].red=0x2F;
+	myColors[4].green=0x0D;
+	myColors[4].blue=0x11;
+	myColors[5].red=0x10;
+	myColors[5].green=0x30;
+	myColors[5].blue=0xF7;
 
-	myColors[0].red=0x80;
-	myColors[0].green=0x00;
-	myColors[0].blue=0x4F;
-	myColors[1].red=0x2F;
-	myColors[1].green=0x0F;
-	myColors[1].blue=0x00;
-	myColors[2].red=0x16;
-	myColors[2].green=0x80;
-	myColors[2].blue=0x37;
+	myColors[6].red=0x00;
+	myColors[6].green=0x2F;
+	myColors[6].blue=0x10;
+	myColors[7].red=0x10;
+	myColors[7].green=0x55;
+	myColors[7].blue=0x77;
+	myColors[8].red=0x9F;
+	myColors[8].green=0x06;
+	myColors[8].blue=0x50;
 
 	colorState=0;
 	cycles=0;
