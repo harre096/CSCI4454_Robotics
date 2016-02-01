@@ -1,8 +1,14 @@
 
 #include "msp432.h"
 
-//unsigned int colorState;
-//unsigned int blackOut;
+struct color{
+	unsigned char red;
+	unsigned char green;
+	unsigned char blue;
+};
+struct color myColors[9];
+unsigned int colorState;
+static int cycles;
 
 void selectPortFunction(int port, int line, int sel10, int sel1){
 	//(p,l,0,0) will set port to Digital I/O
@@ -48,48 +54,44 @@ void setClockFrequency(void){
 void configureTimer(void){
 	TA0CTL=0x0100;   //Picks clock (above), count up mode, sets internal divider, shuts timer off.
 
-
 	TA0CCTL0=0x2000; //Pick compare (not capture) register, interrupt off
-	TA0CCR0=0x0080;  //(128)//sets the max time compare register (1,2,3 depend on this peak)
+	TA0CCR0=0x80;  //(128)//sets the max time compare register (1,2,3 depend on this peak)
 					 //interrups every milisecond
 
 	TA0CCTL1=0x2010; //Pick compare (not capture) register, interrupt on
-	TA0CCR1=0x0080;   //sets the max time compare  for this capture, will wait until overflow
-
+	TA0CCR1=0x0040;   //sets the max time compare  for this capture, will wait until overflow (will be overwritten)
+	TA0CCTL2=0x2010;
+	TA0CCR2=0x0040;
+	TA0CCTL3=0x2010;
+	TA0CCR3=0x0040;
 
 	TA0CTL=0x0116;   //Sets counter to 0, turns counter on, enables timeout (aka overflow) interrups
 }
-//void newColor(){
-//	P2OUT&=0xF8;       //and with F8 to zero out bits 0,1,2
-//	if(!blackOut){
-//		if(++(colorState)==8)
-//			colorState=0;
-//		P2OUT|=colorState; //or with the color to set 0,1,2 as appropriate
-//	}
-//	blackOut^=1;
-//}
 
 void TimerA0Interrupt(void) {
-	static int intCycles=0;
-	static unsigned short intensity=0x80;
-
 	unsigned short intv=TA0IV; //IV=interrupt vector
 	if(intv==0x0E){// OE is overflow interrupt
-		if(++intCycles == 10){
-			intCycles=0;
-			if(intensity==0){
-				intensity=128;
-			}else{
-				intensity-=1;
-			}
-			TA0CCR1=intensity;
+		P2OUT&=0xF8;
+		TA0CCR1=myColors[colorState].red;
+		TA0CCR2=myColors[colorState].green;
+		TA0CCR3=myColors[colorState].blue;
+
+		if(++(cycles)==1000){
+			cycles=0;
+			if(++(colorState)==3)
+				colorState=0;
 		}
-	P2OUT&=~BIT0;
-	}else if(intv==0x02){
+
+	}else if(intv==0x02){//red
 		P2OUT|=BIT0;
+	}else if(intv==0x04){//green
+		P2OUT|=BIT1;
+	}else if(intv==0x06){//blue
+		P2OUT|=BIT2;
 	}
 
 }
+
 
 void main(void){
 
@@ -99,6 +101,39 @@ void main(void){
 	configureTimer();
 	NVIC_EnableIRQ(TA0_N_IRQn); //Enable TA0 interrupts using the NVIC
 								//NVIC=nested vector interrupt controller
+
+	myColors[0].red=0x80;
+	myColors[0].green=0x00;
+	myColors[0].blue=0x4F;
+	myColors[1].red=0x2F;
+	myColors[1].green=0x0F;
+	myColors[1].blue=0x00;
+	myColors[2].red=0x16;
+	myColors[2].green=0x80;
+	myColors[2].blue=0x37;
+
+	myColors[0].red=0x80;
+	myColors[0].green=0x00;
+	myColors[0].blue=0x4F;
+	myColors[1].red=0x2F;
+	myColors[1].green=0x0F;
+	myColors[1].blue=0x00;
+	myColors[2].red=0x16;
+	myColors[2].green=0x80;
+	myColors[2].blue=0x37;
+
+	myColors[0].red=0x80;
+	myColors[0].green=0x00;
+	myColors[0].blue=0x4F;
+	myColors[1].red=0x2F;
+	myColors[1].green=0x0F;
+	myColors[1].blue=0x00;
+	myColors[2].red=0x16;
+	myColors[2].green=0x80;
+	myColors[2].blue=0x37;
+
+	colorState=0;
+	cycles=0;
 
 	while(1){}
 }
